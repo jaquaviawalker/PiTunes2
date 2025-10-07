@@ -27,11 +27,7 @@ class SpotifyClient {
             limit: options?.limit || 5,
         };
         try {
-            console.log('Initializing Spotify API for search...');
             await this.auth.initializeSpotifyAPI(this.spotifyApi);
-            // Check if token was successfully set
-            const accessToken = this.spotifyApi.getAccessToken();
-            console.log('Access token after initialization:', accessToken ? 'Token present' : 'No token');
             const response = await this.spotifyApi.searchAlbums(query, searchOptions);
             const albums = response.body.albums?.items || [];
             if (albums.length === 0) {

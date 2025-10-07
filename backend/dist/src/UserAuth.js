@@ -116,18 +116,9 @@ class UserAuth {
     }
     async restoreTokens() {
         try {
-            logger_1.default.info('Attempting to restore tokens from file', {
-                filePath: path_1.default.resolve(this.filePath),
-            });
             const data = await this.readTokensFromFile();
-            logger_1.default.info('Token data loaded successfully', {
-                hasAccessToken: !!data.access_token,
-                hasRefreshToken: !!data.refresh_token,
-                expirationTime: data.expiration_time,
-            });
             this.spotifyApi.setAccessToken(data.access_token);
             this.spotifyApi.setRefreshToken(data.refresh_token);
-            logger_1.default.info('Tokens set on Spotify API client');
             return data;
         }
         catch (err) {
@@ -138,15 +129,12 @@ class UserAuth {
     }
     //   // Refresh access token when expired
     async refreshAccessToken() {
-        logger_1.default.info('Checking if token is expired');
         const isExpired = await this.isTokenExpired();
         if (!isExpired) {
-            logger_1.default.info('Token is still valid, no refresh needed');
             // Still need to restore tokens to ensure they're set
             await this.restoreTokens();
             return;
         }
-        logger_1.default.info('Token is expired, refreshing');
         try {
             let result = await this.restoreTokens();
             if (!result) {
@@ -172,15 +160,8 @@ class UserAuth {
             if (externalClient) {
                 const accessToken = this.spotifyApi.getAccessToken();
                 const refreshToken = this.spotifyApi.getRefreshToken();
-                logger_1.default.info('Setting tokens on external client', {
-                    hasAccessToken: !!accessToken,
-                    hasRefreshToken: !!refreshToken,
-                });
                 if (accessToken) {
                     externalClient.setAccessToken(accessToken);
-                }
-                else {
-                    logger_1.default.error('No access token available to set on external client');
                 }
                 if (refreshToken) {
                     externalClient.setRefreshToken(refreshToken);
