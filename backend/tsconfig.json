@@ -14,7 +14,7 @@
     "scripts/**/*",
     "controllers/**/*",
     "interfaces/**/*",
-    "routes/**/*",
+    "controllers/**/*",
     "tests/**/*",
     "utils/**/*",
     "server.ts",

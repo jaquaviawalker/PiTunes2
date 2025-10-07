@@ -34,7 +34,6 @@ export class UserAuth {
       'user-read-private',
       'user-read-email',
       'user-read-playback-state',
-      'user-read-playback-state',
     ];
     return this.spotifyApi.createAuthorizeURL(scopes, state);
   }
@@ -65,6 +64,7 @@ export class UserAuth {
             refresh_token: data.body.refresh_token,
             access_token: data.body.access_token,
             expires_in: data.body.expires_in,
+            expiration_time: new Date(this.tokenExpirationTime).toISOString(),
           },
           null,
           2
@@ -82,20 +82,130 @@ export class UserAuth {
   //   // Handle OAuth callback
   //   public async handleAuthCallback(code: string) {}
 
-  //   // Save tokens to file
-  //   public async saveTokens(accessToken, refreshToken, expiresIn) {}
+  // Save tokens to file
+  public async saveTokens(
+    newAccessToken: string,
+    newRefreshToken: string,
+    newExpiresIn: number
+  ): Promise<void> {
+    try {
+      this.tokenExpirationTime = Date.now() + newExpiresIn * 1000;
+      await mkdir(path.dirname(this.filePath), { recursive: true });
+      await writeFile(
+        this.filePath,
+        JSON.stringify(
+          {
+            refresh_token: newRefreshToken,
+            access_token: newAccessToken,
+            expires_in: newExpiresIn,
+            expiration_time: new Date(this.tokenExpirationTime).toISOString(),
+          },
+          null,
+          2
+        ),
+        'utf8'
+      );
+    } catch (err) {
+      logger.error('Failed to save tokens to file', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+      throw err;
+    }
+  }
 
-  //   // Load tokens from file
-  //   public async loadTokens() {}
+  public async readTokensFromFile(): Promise<{
+    access_token: string;
+    refresh_token: string;
+    expires_in: number;
+    expiration_time: string;
+  }> {
+    try {
+      const data = await readFile(this.filePath, 'utf8');
+      return JSON.parse(data);
+    } catch (err) {
+      logger.error('Failed to read tokens to file', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+      throw err;
+    }
+  }
 
-  //   // Check if token is expired
-  //   public isTokenExpired(expiresAt) {}
+  // //   // Check if token is expired
+  public async isTokenExpired(): Promise<boolean> {
+    try {
+      const data = await this.readTokensFromFile();
+      const now = Date.now();
+      const expiredTime = data.expiration_time;
+      return now > Date.parse(expiredTime);
+    } catch (err) {
+      logger.error('Unable to read file to determine if tokens expired ', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+    return true;
+  }
+
+  public async restoreTokens(): Promise<
+    | {
+        access_token: string;
+        refresh_token: string;
+        expires_in: number;
+        expiration_time: string;
+      }
+    | undefined
+  > {
+    try {
+      const data = await this.readTokensFromFile();
+
+      this.spotifyApi.setAccessToken(data.access_token);
+      this.spotifyApi.setRefreshToken(data.refresh_token);
+      return data;
+    } catch (err) {
+      logger.error('Unable to restore token ', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
 
   //   // Refresh access token when expired
-  //   public async refreshAccessToken() {}
+  public async refreshAccessToken(): Promise<string | void> {
+    if (!(await this.isTokenExpired())) {
+      return;
+    }
+    try {
+      let result = await this.restoreTokens();
+      if (!result) {
+        logger.error('Could not restore tokens for refresh');
+        throw new Error('Could not restore tokens for refresh');
+      }
+      const data = await this.spotifyApi.refreshAccessToken();
+      this.spotifyApi.setAccessToken(data.body.access_token);
+
+      await this.saveTokens(
+        data.body.access_token,
+        data.body.refresh_token ?? result.refresh_token,
+        data.body.expires_in
+      );
+
+      return data.body.access_token;
+    } catch (err) {
+      logger.error('Failed to refresh access tokens', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+      throw err;
+    }
+  }
 
   //   // Initialize Spotify API with saved tokens
-  //   public async initializeSpotifyAPI() {}
+  public async initializeSpotifyAPI(): Promise<void> {
+    try {
+      await this.refreshAccessToken();
+    } catch (err) {
+      logger.error('Unable to initialize', {
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
 
   private generateRandomString(length: number) {
     let text = '';
