@@ -4,19 +4,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const UserRoutes_1 = require("./routes/UserRoutes"); // Note the .js extension for ES modules
+const UserRoutes_1 = __importDefault(require("./routes/UserRoutes"));
+const MFRC522Routes_1 = __importDefault(require("./routes/MFRC522Routes"));
+const PlaybackRoutes_1 = __importDefault(require("./routes/PlaybackRoutes"));
 const app = (0, express_1.default)();
-const port = 5000;
+const port = 3000;
+app.use(express_1.default.json());
 app.get('/', (req, res) => {
     res.send('Hello World!');
 });
-async function main() {
-    const userRouter = await (0, UserRoutes_1.createUserRouter)();
-    app.use('/api', userRouter);
-    app.listen(port, () => {
-        console.log(`Server listening at http://localhost:${port}`);
-    });
-}
-main().catch((err) => {
-    console.error('Failed to start server:', err);
+app.use('/api', UserRoutes_1.default);
+app.use('/api', MFRC522Routes_1.default);
+app.use('/api', PlaybackRoutes_1.default);
+app.listen(port, () => {
+    console.log(`Server listening at http://localhost:${port}`);
 });

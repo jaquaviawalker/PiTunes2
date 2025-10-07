@@ -1,14 +1,9 @@
 import { handleLogin, handleCallback } from '../controllers/UserControllers';
-import { UserAuth } from '../src/UserAuth';
 import express from 'express';
 
-export async function createUserRouter() {
-  const router = express.Router();
-  const auth = new UserAuth();
-  await auth.initializeSpotifyAPI();
+const router = express.Router();
 
-  router.get('/login', handleLogin(auth));
-  router.get('/callback', handleCallback(auth));
+router.get('/login', handleLogin);
+router.get('/callback', handleCallback);
 
-  return router;
-}
+export default router;

@@ -34,6 +34,8 @@ export class UserAuth {
       'user-read-private',
       'user-read-email',
       'user-read-playback-state',
+      'user-modify-playback-state',
+      'streaming',
     ];
     return this.spotifyApi.createAuthorizeURL(scopes, state);
   }
@@ -156,7 +158,6 @@ export class UserAuth {
   > {
     try {
       const data = await this.readTokensFromFile();
-
       this.spotifyApi.setAccessToken(data.access_token);
       this.spotifyApi.setRefreshToken(data.refresh_token);
       return data;
@@ -169,7 +170,11 @@ export class UserAuth {
 
   //   // Refresh access token when expired
   public async refreshAccessToken(): Promise<string | void> {
-    if (!(await this.isTokenExpired())) {
+    const isExpired = await this.isTokenExpired();
+
+    if (!isExpired) {
+      // Still need to restore tokens to ensure they're set
+      await this.restoreTokens();
       return;
     }
     try {
@@ -197,13 +202,27 @@ export class UserAuth {
   }
 
   //   // Initialize Spotify API with saved tokens
-  public async initializeSpotifyAPI(): Promise<void> {
+  public async initializeSpotifyAPI(
+    externalClient?: SpotifyWebApi
+  ): Promise<void> {
     try {
       await this.refreshAccessToken();
+      if (externalClient) {
+        const accessToken = this.spotifyApi.getAccessToken();
+        const refreshToken = this.spotifyApi.getRefreshToken();
+
+        if (accessToken) {
+          externalClient.setAccessToken(accessToken);
+        }
+        if (refreshToken) {
+          externalClient.setRefreshToken(refreshToken);
+        }
+      }
     } catch (err) {
       logger.error('Unable to initialize', {
         error: err instanceof Error ? err.message : String(err),
       });
+      throw err;
     }
   }
 
@@ -216,5 +235,9 @@ export class UserAuth {
       text += possible.charAt(Math.floor(Math.random() * possible.length));
     }
     return text;
+  }
+
+  public setCode(code: string) {
+    this.code = code;
   }
 }
