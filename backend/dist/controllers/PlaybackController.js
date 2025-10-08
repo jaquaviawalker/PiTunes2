@@ -61,3 +61,7 @@ async function handlePlayAlbum(req, res) {
         });
     }
 }
+//handleGetPlaybackState
+//GET /api/playback
+//GET /api/playback
+//POST /api/playback/:action

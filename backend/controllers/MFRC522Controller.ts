@@ -3,6 +3,7 @@ import logger from '../utils/logger';
 import { AlbumMapping } from '../src/AlbumMapping';
 import { Mfrc522Scanner } from '../src/MFRC522Scanner';
 import { SpotifyClient } from '../src/SpotifyClient';
+import { query } from 'winston';
 
 export async function handleScanToAlbum(req: Request, res: Response) {
   const { album, artist } = req.body;
@@ -77,3 +78,34 @@ export async function handleScanToAlbum(req: Request, res: Response) {
     });
   }
 }
+
+//handleSearchAlbums
+export async function handleSearchAlbums(req: Request, res: Response) {
+  const album = req.query.album as string;
+  const artist = req.query.artist as string;
+  if (!album && !artist) {
+    return res.status(400).json({
+      success: false,
+      message: 'Please provide either album name or artist name for search',
+    });
+  }
+  const searchQuery = artist ? `${album || ''} artist:${artist}` : album;
+  try {
+    const client = new SpotifyClient();
+    const albums = await client.searchAlbum(searchQuery);
+    res.json({
+      success: true,
+      albums,
+    });
+  } catch (error) {
+    logger.error('Error searching albums', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+    res.status(500).json({
+      success: false,
+      message: 'Internal server error',
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+}
+// GET /api/search

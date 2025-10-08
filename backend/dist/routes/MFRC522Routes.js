@@ -7,4 +7,5 @@ const express_1 = __importDefault(require("express"));
 const MFRC522Controller_1 = require("../controllers/MFRC522Controller");
 const router = express_1.default.Router();
 router.post('/scan', MFRC522Controller_1.handleScanToAlbum);
+router.get('/search', MFRC522Controller_1.handleSearchAlbums);
 exports.default = router;
