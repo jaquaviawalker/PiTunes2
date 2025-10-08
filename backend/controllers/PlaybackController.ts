@@ -100,4 +100,49 @@ export async function handlePlaybackState(req: Request, res: Response) {
   }
 }
 
+export async function handlePlaybackControl(req: Request, res: Response) {
+  const { action } = req.params as { action: string };
+  try {
+    if (!action) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide a playback action',
+      });
+    }
+    const client = new SpotifyClient();
+    await client.playbackControl(action);
+    res.status(200).json({
+      success: true,
+      message: `Playback action '${action}' executed successfully`,
+    });
+  } catch (error) {
+    logger.error('Error controlling playback', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+
+    if (
+      error instanceof Error &&
+      error.message.includes('Unknown playback action')
+    ) {
+      return res.status(400).json({
+        success: false,
+        error: error.message,
+      });
+    }
+
+    if (error instanceof Error && error.message.includes('authentication')) {
+      return res.status(401).json({
+        success: false,
+        error: 'Authentication with Spotify failed',
+      });
+    }
+
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    });
+  }
+}
+
 //POST /api/playback/:action

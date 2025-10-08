@@ -27,7 +27,6 @@ async function handleGetAllMappings(req, res) {
         });
     }
 }
-//handleDeleteMapping for DELETE /api/mappings/:tagId
 async function handleDeleteMapping(req, res) {
     const { tagId } = req.params;
     if (!tagId) {

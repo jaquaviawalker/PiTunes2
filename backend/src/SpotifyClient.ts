@@ -144,6 +144,31 @@ export class SpotifyClient {
       throw error;
     }
   }
+
+  public async playbackControl(action: string) {
+    try {
+      await this.auth.initializeSpotifyAPI(this.spotifyApi);
+      switch (action) {
+        case 'play':
+          await this.spotifyApi.play();
+          break;
+        case 'pause':
+          await this.spotifyApi.pause();
+          break;
+        case 'next':
+          await this.spotifyApi.skipToNext();
+          break;
+        case 'previous':
+          await this.spotifyApi.skipToPrevious();
+          break;
+        default:
+          throw new Error(`Unknown playback action: ${action}`);
+      }
+    } catch (error) {
+      console.error('Error controlling playback', error);
+      throw error;
+    }
+  }
   /**
    * Sets the Spotify album ID to be used for playback
    *

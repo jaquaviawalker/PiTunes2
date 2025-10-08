@@ -107,6 +107,57 @@ class SpotifyClient {
             throw error;
         }
     }
+    async getPlaybackState() {
+        try {
+            await this.auth.initializeSpotifyAPI(this.spotifyApi);
+            const data = await this.spotifyApi.getMyCurrentPlaybackState();
+            if (data == null) {
+                return null;
+            }
+            return {
+                is_playing: data.body.is_playing ?? false,
+                progress_ms: data.body.progress_ms ?? 0,
+                device: {
+                    id: data.body.device?.id || '',
+                    name: data.body.device?.name || '',
+                    type: data.body.device?.type || '',
+                    volume_percent: data.body.device?.volume_percent ?? 0,
+                },
+                shuffle_state: data.body.shuffle_state,
+                repeat_state: data.body.repeat_state,
+                timestamp: data.body.timestamp,
+            };
+        }
+        catch (error) {
+            console.error('Error getting playback state', error);
+            throw error;
+        }
+    }
+    async playbackControl(action) {
+        try {
+            await this.auth.initializeSpotifyAPI(this.spotifyApi);
+            switch (action) {
+                case 'play':
+                    await this.spotifyApi.play();
+                    break;
+                case 'pause':
+                    await this.spotifyApi.pause();
+                    break;
+                case 'next':
+                    await this.spotifyApi.skipToNext();
+                    break;
+                case 'previous':
+                    await this.spotifyApi.skipToPrevious();
+                    break;
+                default:
+                    throw new Error(`Unknown playback action: ${action}`);
+            }
+        }
+        catch (error) {
+            console.error('Error controlling playback', error);
+            throw error;
+        }
+    }
     /**
      * Sets the Spotify album ID to be used for playback
      *

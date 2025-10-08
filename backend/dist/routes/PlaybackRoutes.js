@@ -7,4 +7,6 @@ const express_1 = __importDefault(require("express"));
 const PlaybackController_1 = require("../controllers/PlaybackController");
 const router = express_1.default.Router();
 router.post('/play', PlaybackController_1.handlePlayAlbum);
+router.get('/playback', PlaybackController_1.handlePlaybackState);
+router.post('/playback/:action', PlaybackController_1.handlePlaybackControl);
 exports.default = router;
