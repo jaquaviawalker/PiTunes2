@@ -1,7 +1,8 @@
-import express, { Request, Response } from 'express';
+import express, { application, Request, Response } from 'express';
 import UserRoutes from './routes/UserRoutes';
 import MFRC522Routes from './routes/MFRC522Routes';
 import PlaybackRoutes from './routes/PlaybackRoutes';
+import MappingRoutes from './routes/MappingRoutes';
 import cors from 'cors';
 const app = express();
 
@@ -16,6 +17,7 @@ app.get('/', (req: Request, res: Response) => {
 app.use('/api', UserRoutes);
 app.use('/api', MFRC522Routes);
 app.use('/api', PlaybackRoutes);
+app.use('/api', MappingRoutes);
 
 app.listen(port, () => {
   console.log(`Server listening at http://localhost:${port}`);

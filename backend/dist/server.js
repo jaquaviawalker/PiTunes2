@@ -7,6 +7,7 @@ const express_1 = __importDefault(require("express"));
 const UserRoutes_1 = __importDefault(require("./routes/UserRoutes"));
 const MFRC522Routes_1 = __importDefault(require("./routes/MFRC522Routes"));
 const PlaybackRoutes_1 = __importDefault(require("./routes/PlaybackRoutes"));
+const MappingRoutes_1 = __importDefault(require("./routes/MappingRoutes"));
 const cors_1 = __importDefault(require("cors"));
 const app = (0, express_1.default)();
 const port = 3000;
@@ -18,6 +19,7 @@ app.get('/', (req, res) => {
 app.use('/api', UserRoutes_1.default);
 app.use('/api', MFRC522Routes_1.default);
 app.use('/api', PlaybackRoutes_1.default);
+app.use('/api', MappingRoutes_1.default);
 app.listen(port, () => {
     console.log(`Server listening at http://localhost:${port}`);
 });
