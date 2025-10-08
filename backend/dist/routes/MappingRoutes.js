@@ -7,4 +7,5 @@ const express_1 = __importDefault(require("express"));
 const MappingController_1 = require("../controllers/MappingController");
 const router = express_1.default.Router();
 router.get('/mappings', MappingController_1.handleGetAllMappings);
+router.delete('/mappings/:tagId', MappingController_1.handleDeleteMapping);
 exports.default = router;

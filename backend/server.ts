@@ -1,4 +1,4 @@
-import express, { application, Request, Response } from 'express';
+import express, { Request, Response } from 'express';
 import UserRoutes from './routes/UserRoutes';
 import MFRC522Routes from './routes/MFRC522Routes';
 import PlaybackRoutes from './routes/PlaybackRoutes';
