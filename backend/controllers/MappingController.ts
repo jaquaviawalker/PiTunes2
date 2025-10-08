@@ -22,8 +22,6 @@ export async function handleGetAllMappings(req: Request, res: Response) {
   }
 }
 
-//handleDeleteMapping for DELETE /api/mappings/:tagId
-
 export async function handleDeleteMapping(req: Request, res: Response) {
   const { tagId } = req.params as { tagId: string };
   if (!tagId) {
