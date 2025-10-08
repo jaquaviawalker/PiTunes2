@@ -2,6 +2,7 @@ import {
   TagMapping,
   MappingResult,
   MappingsCollection,
+  AlbumMetadata,
 } from '../interfaces/AlbumMapping';
 import { readFile, writeFile } from 'fs/promises';
 import path from 'path';
@@ -141,12 +142,17 @@ export class AlbumMapping {
    * @param albumId - The Spotify album ID to associate with the tag
    * @throws Error if inputs are invalid
    */
-  public async addMapping(tagId: string, albumId: string): Promise<void> {
+  public async addMapping(
+    tagId: string,
+    albumId: string,
+    metadata: AlbumMetadata
+  ): Promise<void> {
     try {
       this.validateInput(tagId, albumId);
 
       this.mappings[tagId] = {
         albumId,
+        metadata,
         mappedAt: new Date().toISOString(),
       } as TagMapping;
 

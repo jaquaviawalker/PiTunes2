@@ -35,6 +35,15 @@ async function handleScanToAlbum(req, res) {
             });
         }
         const albumId = match.id;
+        const releaseDate = match.release_date
+            ? new Date(match.release_date)
+            : undefined;
+        const metadata = {
+            albumName: match.name,
+            artistName: match.artists?.[0]?.name || 'Unknown Artist',
+            imageUrl: match.images?.[0]?.url || '',
+            releaseDate: releaseDate, // Now a Date object or undefined
+        };
         logger_1.default.info('Waiting for card scan...', { album, artist });
         const mfrc522 = new MFRC522Scanner_1.Mfrc522Scanner();
         const scanResult = mfrc522.readCard();
@@ -46,7 +55,7 @@ async function handleScanToAlbum(req, res) {
         }
         uid = scanResult.uid;
         const instance = await AlbumMapping_1.AlbumMapping.create();
-        await instance.addMapping(uid, albumId);
+        await instance.addMapping(uid, albumId, metadata);
         res.status(200).json({
             success: true,
             uid: uid,

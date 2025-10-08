@@ -124,11 +124,12 @@ class AlbumMapping {
      * @param albumId - The Spotify album ID to associate with the tag
      * @throws Error if inputs are invalid
      */
-    async addMapping(tagId, albumId) {
+    async addMapping(tagId, albumId, metadata) {
         try {
             this.validateInput(tagId, albumId);
             this.mappings[tagId] = {
                 albumId,
+                metadata,
                 mappedAt: new Date().toISOString(),
             };
             await this.saveMapping();

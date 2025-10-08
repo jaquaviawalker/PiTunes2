@@ -6,5 +6,15 @@
   "4232a8d901": {
     "albumId": "2ZytN2cY4Zjrr9ukb2rqTP",
     "mappedAt": "2025-10-07T20:01:18.229Z"
+  },
+  "c2388bd9a8": {
+    "albumId": "3OrucS4sHv6Bl9GS4rafEk",
+    "metadata": {
+      "albumName": "Me Against The World",
+      "artistName": "2Pac",
+      "imageUrl": "https://i.scdn.co/image/ab67616d0000b27304b9ab6bd4bf6a350ba902ea",
+      "releaseDate": "1995-03-14T00:00:00.000Z"
+    },
+    "mappedAt": "2025-10-08T17:11:10.718Z"
   }
 }
